@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantTrade AI - Trading Bot Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        .sidebar {
+            transition: all 0.3s;
+        }
+        .dark-mode {
+            background-color: #1a202c;
+            color: #f7fafc;
+        }
+        .dark-mode .card {
+            background-color: #2d3748;
+            border-color: #4a5568;
+        }
+        .glow {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        .trading-signal-buy {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid #10b981;
+        }
+        .trading-signal-sell {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+        }
+        .trading-signal-hold {
+            background-color: rgba(156, 163, 175, 0.1);
+            border-left: 4px solid #9ca3af;
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar bg-indigo-800 text-white w-64 flex-shrink-0">
+            <div class="p-4 flex items-center space-x-2">
+                <i class="fas fa-robot text-2xl text-indigo-300"></i>
+                <h1 class="text-xl font-bold">QuantTrade AI</h1>
+            </div>
+            <nav class="mt-6">
+                <div class="px-4 py-2 text-indigo-200 uppercase text-xs font-semibold">Navigation</div>
+                <a href="#" class="block px-4 py-3 text-white bg-indigo-900">
+                    <i class="fas fa-chart-line mr-2"></i> Dashboard
+                </a>
+                <a href="#" class="block px-4 py-3 text-indigo-200 hover:text-white hover:bg-indigo-700">
+                    <i class="fas fa-database mr-2"></i> Data Management
+                </a>
+                <a href="#" class="block px-4 py-3 text-indigo-200 hover:text-white hover:bg-indigo-700">
+                    <i class="fas fa-brain mr-2"></i> Model Training
+                </a>
+                <a href="#" class="block px-4 py-3 text-indigo-200 hover:text-white hover:bg-indigo-700">
+                    <i class="fas fa-chess mr-2"></i> Backtesting
+                </a>
+                <a href="#" class="block px-4 py-3 text-indigo-200 hover:text-white hover:bg-indigo-700">
+                    <i class="fas fa-cog mr-2"></i> Settings
+                </a>
+                
+                <div class="px-4 py-2 text-indigo-200 uppercase text-xs font-semibold mt-6">Reports</div>
+                <a href="#" class="block px-4 py-3 text-indigo-200 hover:text-white hover:bg-indigo-700">
+                    <i class="fas fa-file-alt mr-2"></i> Performance
+                </a>
+                <a href="#" class="block px-4 py-3 text-indigo-200 hover:text-white hover:bg-indigo-700">
+                    <i class="fas fa-chart-pie mr-2"></i> Analytics
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between px-6 py-3">
+                    <div class="flex items-center">
+                        <button class="text-gray-500 focus:outline-none lg:hidden">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <div class="relative mx-4 lg:mx-0">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </span>
+                            <input class="form-input w-32 sm:w-64 rounded-md pl-10 pr-4 focus:border-indigo-500" type="text" placeholder="Search...">
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button id="darkModeToggle" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <button class="text-gray-500 hover:text-gray-700 relative">
+                            <i class="fas fa-bell"></i>
+                            <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                        </button>
+                        <button class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gray-100">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Trading Bot Dashboard</h2>
+                    <p class="text-gray-600">Monitor and analyze your AI trading bot performance</p>
+                </div>
+
+                <!-- Seções principais do dashboard -->
+                <div id="dashboardSection">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="card bg-white rounded-lg shadow p-6 glow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Total Profit</p>
+                                <h3 class="text-2xl font-bold text-green-600">$12,458.32</h3>
+                            </div>
+                            <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                <i class="fas fa-chart-bar text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-green-600 text-sm font-semibold">+12.5%</span>
+                            <span class="text-gray-500 text-sm ml-2">vs last month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Win Rate</p>
+                                <h3 class="text-2xl font-bold text-indigo-600">68.3%</h3>
+                            </div>
+                            <div class="p-3 rounded-full bg-indigo-100 text-indigo-600">
+                                <i class="fas fa-trophy text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-green-600 text-sm font-semibold">+5.2%</span>
+                            <span class="text-gray-500 text-sm ml-2">vs last month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Active Trades</p>
+                                <h3 class="text-2xl font-bold text-blue-600">14</h3>
+                            </div>
+                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                <i class="fas fa-exchange-alt text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-red-600 text-sm font-semibold">-2</span>
+                            <span class="text-gray-500 text-sm ml-2">vs yesterday</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500">Sharpe Ratio</p>
+                                <h3 class="text-2xl font-bold text-purple-600">1.87</h3>
+                            </div>
+                            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                                <i class="fas fa-chart-pie text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-green-600 text-sm font-semibold">+0.23</span>
+                            <span class="text-gray-500 text-sm ml-2">vs last week</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Main Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Price Chart -->
+                    <div class="card bg-white rounded-lg shadow p-6 lg:col-span-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">BTC/USD - Price & Signals</h3>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 text-xs bg-indigo-100 text-indigo-700 rounded">1D</button>
+                                <button class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded">1W</button>
+                                <button class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded">1M</button>
+                                <button class="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded">1Y</button>
+                            </div>
+                        </div>
+                        <div class="h-80">
+                            <canvas id="priceChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Performance Metrics -->
+                    <div class="card bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold mb-4">Performance Metrics</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-500">Buy Accuracy</span>
+                                    <span class="text-sm font-medium text-green-600">72%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 72%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-500">Sell Accuracy</span>
+                                    <span class="text-sm font-medium text-red-600">65%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-500">Hold Accuracy</span>
+                                    <span class="text-sm font-medium text-blue-600">81%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 81%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-500">Max Drawdown</span>
+                                    <span class="text-sm font-medium text-orange-600">-8.2%</span>
+                                </div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-500">Profit Factor</span>
+                                    <span class="text-sm font-medium text-green-600">2.1</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-500">Avg Trade Duration</span>
+                                    <span class="text-sm font-medium text-indigo-600">3.2 days</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Trades and News -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Recent Trades -->
+                    <div class="card bg-white rounded-lg shadow p-6 lg:col-span-2">
+                        <h3 class="text-lg font-semibold mb-4">Recent Trading Signals</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Symbol</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confidence</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr class="trading-signal-buy">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-05-10 14:32</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">BTC/USD</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold">BUY</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$62,345.21</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+3.2%</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-green-500 h-2 rounded-full" style="width: 82%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="trading-signal-sell">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-05-09 11:15</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">ETH/USD</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">SELL</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$3,012.45</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+1.8%</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-red-500 h-2 rounded-full" style="width: 76%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="trading-signal-hold">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-05-08 09:42</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SOL/USD</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold">HOLD</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$145.67</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">-0.5%</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-blue-500 h-2 rounded-full" style="width: 68%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="trading-signal-buy">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-05-07 16:28</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">ADA/USD</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold">BUY</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$0.4521</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">-2.1%</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-green-500 h-2 rounded-full" style="width: 71%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="trading-signal-sell">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-05-06 13:55</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">DOT/USD</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">SELL</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$6.78</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+4.3%</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-red-500 h-2 rounded-full" style="width: 84%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Market News -->
+                    <div class="card bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold mb-4">Market News Analysis</h3>
+                        <div class="space-y-4">
+                            <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        <i class="fas fa-newspaper"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Fed Signals Potential Rate Cuts</p>
+                                        <p class="text-sm text-gray-500">Sentiment: <span class="text-green-600">Positive</span> (0.78)</p>
+                                        <p class="text-xs text-gray-400 mt-1">2 hours ago • Bloomberg</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Bitcoin ETF Outflows Continue</p>
+                                        <p class="text-sm text-gray-500">Sentiment: <span class="text-red-600">Negative</span> (0.65)</p>
+                                        <p class="text-xs text-gray-400 mt-1">5 hours ago • CoinDesk</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Ethereum Layer 2 Adoption Surges</p>
+                                        <p class="text-sm text-gray-500">Sentiment: <span class="text-green-600">Positive</span> (0.82)</p>
+                                        <p class="text-xs text-gray-400 mt-1">8 hours ago • The Block</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                        <i class="fas fa-landmark"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Regulatory Concerns in Asia</p>
+                                        <p class="text-sm text-gray-500">Sentiment: <span class="text-orange-500">Neutral</span> (0.52)</p>
+                                        <p class="text-xs text-gray-400 mt-1">12 hours ago • Reuters</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                                        <i class="fas fa-chart-pie"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Institutional Crypto Inflows Rise</p>
+                                        <p class="text-sm text-gray-500">Sentiment: <span class="text-green-600">Positive</span> (0.73)</p>
+                                        <p class="text-xs text-gray-400 mt-1">1 day ago • CNBC</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backtesting Results -->
+                <div class="card bg-white rounded-lg shadow p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Backtesting Results (Jan 2023 - Dec 2024)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500">Total Trades</p>
+                            <h4 class="text-2xl font-bold">248</h4>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500">Winning Trades</p>
+                            <h4 class="text-2xl font-bold text-green-600">169 (68.1%)</h4>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500">Losing Trades</p>
+                            <h4 class="text-2xl font-bold text-red-600">79 (31.9%)</h4>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500">Profit Factor</p>
+                            <h4 class="text-2xl font-bold text-indigo-600">2.34</h4>
+                        </div>
+                    </div>
+                    <div class="h-96">
+                        <canvas id="backtestingChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Model Configuration -->
+                <div class="card bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Model Configuration</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">RL Model Parameters</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Learning Rate</label>
+                                    <div class="mt-1 relative rounded-md shadow-sm">
+                                        <input type="text" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-12 sm:text-sm border-gray-300 rounded-md" value="0.00025" disabled>
+                                        <div class="absolute inset-y-0 right-0 flex items-center">
+                                            <span class="text-gray-500 sm:text-sm pr-3">α</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Discount Factor</label>
+                                    <div class="mt-1 relative rounded-md shadow-sm">
+                                        <input type="text" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-12 sm:text-sm border-gray-300 rounded-md" value="0.99" disabled>
+                                        <div class="absolute inset-y-0 right-0 flex items-center">
+                                            <span class="text-gray-500 sm:text-sm pr-3">γ</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Batch Size</label>
+                                    <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value="64" disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">Data Parameters</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Lookback Window</label>
+                                    <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value="30 days" disabled>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Features</label>
+                                    <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value="Price, Volume, RSI, MACD" disabled>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Random Seed</label>
+                                    <input type="text" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value="42" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <button class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-sync-alt mr-2"></i> Retrain Model
+                        </button>
+                        <button class="ml-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                            <i class="fas fa-cog mr-2"></i> Advanced Settings
+                        </button>
+                    </div>
+                </div>
+        </div>
+            </div>
+
+            <!-- Model Training Section -->
+            <div id="modelTrainingSection" class="hidden flex justify-center w-full">
+                <div class="w-full max-w-4xl mt-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Model Training</h2>
+                    <div class="mb-6">
+                        <div class="flex space-x-4 mt-4 items-center">
+                            <label for="symbolSelectTrain" class="font-medium text-gray-700">Ativo:</label>
+                            <select id="symbolSelectTrain" class="border rounded px-2 py-1">
+                                <option value="BTC">BTC</option>
+                                <option value="ETH">ETH</option>
+                                <option value="LTC">LTC</option>
+                                <option value="TRX">TRX</option>
+                                <option value="EOC_coin">EOC_coin</option>
+                            </select>
+                            <button id="trainModel" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Treinar Modelo</button>
+                            <button id="predictSignal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Predizer Sinal</button>
+                            <button id="showHistory" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Mostrar Histórico</button>
+                        </div>
+                        <div id="modelResult" class="mt-4 p-4 bg-white rounded shadow hidden">
+                            <h3 class="font-bold">Resultado:</h3>
+                            <p id="resultText"></p>
+                        </div>
+                        <div id="historyResult" class="mt-4 p-4 bg-white rounded shadow hidden">
+                            <h3 class="font-bold">Histórico de Sinais:</h3>
+                            <ul id="historyList"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settingsSection" class="hidden flex justify-center w-full">
+                <div class="w-full max-w-2xl mt-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Configurações</h2>
+                    <div class="mb-6 space-y-4">
+                        <div>
+                            <label class="block font-medium text-gray-700 mb-1">Ativo Favorito:</label>
+                            <select id="favSymbol" class="border rounded px-2 py-1 w-full">
+                                <option value="BTC">BTC</option>
+                                <option value="ETH">ETH</option>
+                                <option value="LTC">LTC</option>
+                                <option value="TRX">TRX</option>
+                                <option value="EOC_coin">EOC_coin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-medium text-gray-700 mb-1">Saldo Inicial Backtest:</label>
+                            <input id="initBalance" type="number" class="border rounded px-2 py-1 w-full" value="10000">
+                        </div>
+                        <div>
+                            <label class="block font-medium text-gray-700 mb-1">Taxa de Transação (%)</label>
+                            <input id="fee" type="number" step="0.0001" class="border rounded px-2 py-1 w-full" value="0.1">
+                        </div>
+                        <div>
+                            <label class="block font-medium text-gray-700 mb-1">Slippage (%)</label>
+                            <input id="slippage" type="number" step="0.0001" class="border rounded px-2 py-1 w-full" value="0.05">
+                        </div>
+                        <button id="saveSettings" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Salvar Configurações</button>
+                        <span id="settingsSaved" class="text-green-600 hidden">Configurações salvas!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backtesting Section (com gráfico e métricas) -->
+            <div id="backtestingSection" class="hidden flex justify-center w-full">
+                <div class="w-full max-w-5xl mt-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Backtesting</h2>
+                    <div class="flex space-x-4 mt-4 items-center">
+                        <label for="symbolSelectBacktest" class="font-medium text-gray-700">Ativo:</label>
+                        <select id="symbolSelectBacktest" class="border rounded px-2 py-1">
+                            <option value="BTC">BTC</option>
+                            <option value="ETH">ETH</option>
+                            <option value="LTC">LTC</option>
+                            <option value="TRX">TRX</option>
+                            <option value="EOC_coin">EOC_coin</option>
+                        </select>
+                        <button id="runBacktest" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">Rodar Backtest</button>
+                    </div>
+                    <div id="backtestMetrics" class="mt-6 mb-2 p-4 bg-gray-50 rounded shadow hidden">
+                        <h3 class="font-bold mb-2">Métricas do Backtest:</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div><span class="text-gray-600">Lucro Total:</span> <span id="metricProfit" class="font-bold"></span></div>
+                            <div><span class="text-gray-600">Trades:</span> <span id="metricTrades" class="font-bold"></span></div>
+                            <div><span class="text-gray-600">Win Rate:</span> <span id="metricWinRate" class="font-bold"></span></div>
+                            <div><span class="text-gray-600">Max Drawdown:</span> <span id="metricDrawdown" class="font-bold"></span></div>
+                        </div>
+                    </div>
+                    <div class="mt-4 bg-white rounded shadow p-4">
+                        <canvas id="backtestChart" height="120"></canvas>
+                    </div>
+                    <div class="mt-4 bg-white rounded shadow p-4">
+                        <canvas id="priceSignalChart" height="120"></canvas>
+                    </div>
+                    <div id="backtestResult" class="mt-4 p-4 bg-white rounded shadow hidden">
+                        <h3 class="font-bold">Histórico de Operações:</h3>
+                        <div class="overflow-x-auto" style="max-height: 400px; overflow-y: auto;">
+                            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Data</th>
+                                        <th class="px-4 py-2 text-left">Ação</th>
+                                        <th class="px-4 py-2 text-left">Preço</th>
+                                        <th class="px-4 py-2 text-left">Saldo</th>
+                                        <th class="px-4 py-2 text-left">Lucro</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="backtestTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance/Relatórios Section -->
+            <div id="performanceSection" class="hidden flex justify-center w-full">
+                <div class="w-full max-w-3xl mt-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Relatórios de Performance</h2>
+                    <div id="perfMetrics" class="mb-6 p-4 bg-white rounded shadow">
+                        <h3 class="font-bold mb-2">Métricas do Último Backtest:</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div><span class="text-gray-600">Lucro Total:</span> <span id="perfLucro" class="font-bold"></span></div>
+                            <div><span class="text-gray-600">% Win:</span> <span id="perfWin" class="font-bold"></span></div>
+                            <div><span class="text-gray-600">% Loss:</span> <span id="perfLoss" class="font-bold"></span></div>
+                            <div><span class="text-gray-600">% Buy:</span> <span id="perfBuy" class="font-bold"></span></div>
+                            <div><span class="text-gray-600">% Sell:</span> <span id="perfSell" class="font-bold"></span></div>
+                            <div><span class="text-gray-600">% Hold:</span> <span id="perfHold" class="font-bold"></span></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded shadow p-4">
+                        <canvas id="perfPie" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        });
+
+        // Price Chart
+        const priceCtx = document.getElementById('priceChart').getContext('2d');
+        const priceChart = new Chart(priceCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 30}, (_, i) => `Day ${i+1}`),
+                datasets: [
+                    {
+                        label: 'BTC Price',
+                        data: [62000, 61500, 62500, 61800, 62200, 62800, 63500, 63000, 62500, 61800, 
+                               61200, 60800, 61500, 62200, 62800, 63500, 64200, 63800, 64500, 65200, 
+                               64800, 65500, 66200, 67000, 67500, 68000, 68500, 67800, 67200, 66800],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    },
+                    {
+                        label: 'Buy Signals',
+                        data: [null, null, 62500, null, null, 62800, null, null, null, null, 
+                               null, null, 61500, null, 62800, null, null, null, 64500, null, 
+                               null, 65500, null, 67000, null, null, null, null, null, null],
+                        backgroundColor: '#10b981',
+                        borderColor: '#10b981',
+                        borderWidth: 0,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointStyle: 'triangle',
+                        pointBackgroundColor: '#10b981',
+                        showLine: false
+                    },
+                    {
+                        label: 'Sell Signals',
+                        data: [null, 61500, null, null, null, null, 63500, 63000, null, 61800, 
+                               61200, null, null, null, null, 63500, null, 63800, null, 65200, 
+                               64800, null, 66200, null, 67500, null, 68500, 67800, null, null],
+                        backgroundColor: '#ef4444',
+                        borderColor: '#ef4444',
+                        borderWidth: 0,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointStyle: 'triangle',
+                        pointBackgroundColor: '#ef4444',
+                        showLine: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+
+        // Backtesting Chart
+        const backtestingCtx = document.getElementById('backtestingChart').getContext('2d');
+        const backtestingChart = new Chart(backtestingCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+                         'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: 'Buy & Hold',
+                        data: [10000, 10500, 9800, 10200, 11000, 11500, 10800, 11200, 12000, 12500, 13000, 13500,
+                               14000, 14500, 13800, 14200, 15000, 15500, 14800, 15200, 16000, 16500, 17000, 17500],
+                        borderColor: '#9ca3af',
+                        backgroundColor: 'rgba(156, 163, 175, 0.1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0.1,
+                        fill: true
+                    },
+                    {
+                        label: 'Trading Bot',
+                        data: [10000, 10300, 10700, 11100, 10500, 10800, 11200, 11700, 12200, 11800, 12300, 12800,
+                               13200, 13700, 14200, 14700, 15200, 15800, 16300, 16800, 17300, 17900, 18400, 19000],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += '$' + context.parsed.y.toLocaleString();
+                                }
+                                return label;
+                            }
+                        }
+                    },
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                yMin: 10000,
+                                yMax: 10000,
+                                borderColor: 'rgb(75, 192, 192)',
+                                borderWidth: 2,
+                                borderDash: [4, 4],
+                                label: {
+                                    content: 'Starting Point',
+                                    enabled: true,
+                                    position: 'left'
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+
+        // Simulate live updates
+        setInterval(() => {
+            // Update price chart with new data point
+            const priceData = priceChart.data.datasets[0].data;
+            const lastPrice = priceData[priceData.length - 1];
+            const newPrice = lastPrice + (Math.random() - 0.5) * 1000;
+            
+            priceChart.data.labels.push(`Day ${priceChart.data.labels.length + 1}`);
+            priceChart.data.labels.shift();
+            
+            priceChart.data.datasets[0].data.push(newPrice);
+            priceChart.data.datasets[0].data.shift();
+            
+            // Randomly add buy/sell signals
+            if (Math.random() > 0.7) {
+                priceChart.data.datasets[1].data.push(null);
+                priceChart.data.datasets[2].data.push(null);
+                
+                if (Math.random() > 0.5) {
+                    priceChart.data.datasets[1].data[priceChart.data.datasets[1].data.length - 1] = newPrice;
+                } else {
+                    priceChart.data.datasets[2].data[priceChart.data.datasets[2].data.length - 1] = newPrice;
+                }
+            } else {
+                priceChart.data.datasets[1].data.push(null);
+                priceChart.data.datasets[2].data.push(null);
+            }
+            
+            priceChart.data.datasets[1].data.shift();
+            priceChart.data.datasets[2].data.shift();
+            
+            priceChart.update();
+            
+            // Update backtesting chart with small random growth
+            const botData = backtestingChart.data.datasets[1].data;
+            const lastBotValue = botData[botData.length - 1];
+            const growth = 1 + (Math.random() * 0.02 - 0.01);
+            backtestingChart.data.datasets[1].data.push(lastBotValue * growth);
+            backtestingChart.data.datasets[1].data.shift();
+            
+            const holdData = backtestingChart.data.datasets[0].data;
+            const lastHoldValue = holdData[holdData.length - 1];
+            backtestingChart.data.datasets[0].data.push(lastHoldValue * (1 + Math.random() * 0.015 - 0.0075));
+            backtestingChart.data.datasets[0].data.shift();
+            
+            backtestingChart.update();
+        }, 3000);
+
+        document.getElementById('trainModel').addEventListener('click', async () => {
+            const symbol = document.getElementById('symbolSelectTrain').value;
+            try {
+                const response = await fetch('/train', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol })
+                });
+                const data = await response.json();
+                document.getElementById('resultText').textContent = `Modelo treinado com sucesso para ${symbol}. Acurácia: ${data.accuracy}%`;
+                document.getElementById('modelResult').classList.remove('hidden');
+            } catch (error) {
+                console.error('Erro ao treinar modelo:', error);
+                document.getElementById('resultText').textContent = 'Erro ao treinar modelo.';
+                document.getElementById('modelResult').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('predictSignal').addEventListener('click', async () => {
+            const symbol = document.getElementById('symbolSelectTrain').value;
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        symbol,
+                        close: 50000,
+                        ma_7: 49000,
+                        ma_30: 48000,
+                        volatility: 0.02,
+                        volume_change: 0.05
+                    })
+                });
+                const data = await response.json();
+                document.getElementById('resultText').textContent = `Sinal: ${data.signal}`;
+                document.getElementById('modelResult').classList.remove('hidden');
+            } catch (error) {
+                console.error('Erro ao predizer sinal:', error);
+                document.getElementById('resultText').textContent = 'Erro ao predizer sinal.';
+                document.getElementById('modelResult').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('showHistory').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/history');
+                const data = await response.json();
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = '';
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.date}: ${item.signal}`;
+                    historyList.appendChild(li);
+                });
+                document.getElementById('historyResult').classList.remove('hidden');
+            } catch (error) {
+                console.error('Erro ao obter histórico:', error);
+                document.getElementById('resultText').textContent = 'Erro ao obter histórico.';
+                document.getElementById('modelResult').classList.remove('hidden');
+            }
+        });
+
+        // SETTINGS: salvar e carregar preferências do usuário
+        function loadSettings() {
+            const fav = localStorage.getItem('favSymbol') || 'BTC';
+            const bal = localStorage.getItem('initBalance') || '10000';
+            const fee = localStorage.getItem('fee') || '0.1';
+            const slip = localStorage.getItem('slippage') || '0.05';
+            document.getElementById('favSymbol').value = fav;
+            document.getElementById('initBalance').value = bal;
+            document.getElementById('fee').value = fee;
+            document.getElementById('slippage').value = slip;
+            // Aplicar favorito nos selects principais
+            document.getElementById('symbolSelectTrain').value = fav;
+            document.getElementById('symbolSelectBacktest').value = fav;
+        }
+        document.getElementById('saveSettings').addEventListener('click', () => {
+            localStorage.setItem('favSymbol', document.getElementById('favSymbol').value);
+            localStorage.setItem('initBalance', document.getElementById('initBalance').value);
+            localStorage.setItem('fee', document.getElementById('fee').value);
+            localStorage.setItem('slippage', document.getElementById('slippage').value);
+            document.getElementById('settingsSaved').classList.remove('hidden');
+            setTimeout(() => document.getElementById('settingsSaved').classList.add('hidden'), 2000);
+            // Aplicar favorito nos selects principais
+            document.getElementById('symbolSelectTrain').value = document.getElementById('favSymbol').value;
+            document.getElementById('symbolSelectBacktest').value = document.getElementById('favSymbol').value;
+        });
+        // Carregar ao abrir
+        loadSettings();
+
+        // Exibir métricas e gráfico de pizza na aba de Performance
+        function showPerformanceReport(metrics) {
+            document.getElementById('perfLucro').textContent = `$${metrics.lucro_total.toFixed(2)}`;
+            document.getElementById('perfWin').textContent = `${metrics.pct_win.toFixed(1)}%`;
+            document.getElementById('perfLoss').textContent = `${metrics.pct_loss.toFixed(1)}%`;
+            document.getElementById('perfBuy').textContent = `${metrics.taxa_buy.toFixed(1)}%`;
+            document.getElementById('perfSell').textContent = `${metrics.taxa_sell.toFixed(1)}%`;
+            document.getElementById('perfHold').textContent = `${metrics.taxa_hold.toFixed(1)}%`;
+            // Gráfico de pizza
+            if (window.perfPieChart) window.perfPieChart.destroy();
+            const ctxPie = document.getElementById('perfPie').getContext('2d');
+            window.perfPieChart = new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: ['Buy', 'Sell', 'Hold'],
+                    datasets: [{
+                        data: [metrics.total_buy, metrics.total_sell, metrics.total_hold],
+                        backgroundColor: ['#10b981', '#ef4444', '#9ca3af']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+        // Salvar métricas do último backtest para exibir em Performance
+        let lastBacktestMetrics = null;
+        document.getElementById('runBacktest').addEventListener('click', async () => {
+            const symbol = document.getElementById('symbolSelectBacktest').value;
+            const initialBalance = parseFloat(localStorage.getItem('initBalance') || '10000');
+            const fee = parseFloat(localStorage.getItem('fee') || '0.1');
+            const slippage = parseFloat(localStorage.getItem('slippage') || '0.05');
+            try {
+                const response = await fetch('/backtest', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol, initialBalance, fee, slippage })
+                });
+                const data = await response.json();
+                console.log('Backtest response:', data); // Para debug
+                if (data.error) {
+                    document.getElementById('backtestResult').classList.remove('hidden');
+                    document.getElementById('backtestTable').innerHTML = '<tr><td colspan="5">Erro ao rodar backtest: ' + data.error + '</td></tr>';
+                    if (window.backtestChart) window.backtestChart.destroy();
+                    if (window.priceSignalChart) window.priceSignalChart.destroy();
+                    document.getElementById('backtestMetrics').classList.add('hidden');
+                    return;
+                }
+                if (!data.actions || data.actions.length === 0) {
+                    document.getElementById('backtestResult').classList.remove('hidden');
+                    document.getElementById('backtestTable').innerHTML = '<tr><td colspan="5">Nenhuma operação encontrada no backtest.</td></tr>';
+                    if (window.backtestChart) window.backtestChart.destroy();
+                    if (window.priceSignalChart) window.priceSignalChart.destroy();
+                    document.getElementById('backtestMetrics').classList.add('hidden');
+                    return;
+                }
+                const table = document.getElementById('backtestTable');
+                table.innerHTML = '';
+                data.actions.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-4 py-2">${item.date}</td>
+                        <td class="px-4 py-2">${item.action ? item.action.toUpperCase() : '-'}</td>
+                        <td class="px-4 py-2">$${item.price !== undefined ? item.price.toFixed(2) : '-'}</td>
+                        <td class="px-4 py-2">$${item.balance !== undefined ? item.balance.toFixed(2) : '-'}</td>
+                        <td class="px-4 py-2">${item.profit !== undefined ? '$' + item.profit.toFixed(2) : '-'}</td>
+                    `;
+                    table.appendChild(tr);
+                });
+                document.getElementById('backtestResult').classList.remove('hidden');
+                // Métricas agregadas
+                if (data.metrics) {
+                    const metrics = data.metrics;
+                    document.getElementById('metricProfit').textContent = `$${metrics.lucro_total !== undefined ? metrics.lucro_total.toFixed(2) : '0.00'}`;
+                    document.getElementById('metricTrades').textContent = metrics.total_trades !== undefined ? metrics.total_trades : '-';
+                    document.getElementById('metricWinRate').textContent = metrics.pct_win !== undefined ? `${metrics.pct_win.toFixed(1)}%` : '-';
+                    document.getElementById('metricDrawdown').textContent = `$${metrics.maxDrawdown !== undefined ? metrics.maxDrawdown.toFixed(2) : '0.00'}`;
+                    document.getElementById('backtestMetrics').classList.remove('hidden');
+                    lastBacktestMetrics = metrics;
+                } else {
+                    document.getElementById('backtestMetrics').classList.add('hidden');
+                }
+                // Gráfico de saldo
+                const balances = data.actions.map(a => a.balance);
+                const labels = data.actions.map(a => a.date);
+                if (window.backtestChart) window.backtestChart.destroy();
+                const ctx = document.getElementById('backtestChart').getContext('2d');
+                window.backtestChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Saldo',
+                                data: balances,
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.1,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: false } }
+                    }
+                });
+                // Gráfico de preço + sinais
+                plotPriceSignalChart(data.actions);
+            } catch (error) {
+                console.error('Erro ao rodar backtest:', error);
+                document.getElementById('backtestResult').classList.remove('hidden');
+                document.getElementById('backtestTable').innerHTML = '<tr><td colspan="5">Erro ao rodar backtest.</td></tr>';
+                if (window.backtestChart) window.backtestChart.destroy();
+                if (window.priceSignalChart) window.priceSignalChart.destroy();
+                document.getElementById('backtestMetrics').classList.add('hidden');
+            }
+        });
+
+        // Após rodar o backtest, também plota o gráfico de preço + sinais
+        function plotPriceSignalChart(actions) {
+            const priceData = actions.map(a => a.price);
+            const buySignals = actions.map(a => a.action === 'buy' ? a.price : null);
+            const sellSignals = actions.map(a => a.action === 'sell' ? a.price : null);
+            const labels = actions.map(a => a.date);
+            if (window.priceSignalChart) window.priceSignalChart.destroy();
+            const ctxPrice = document.getElementById('priceSignalChart').getContext('2d');
+            window.priceSignalChart = new Chart(ctxPrice, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Preço', data: priceData, borderColor: '#3b82f6', fill: false, pointRadius: 0 },
+                        { label: 'Buy', data: buySignals, borderColor: '#10b981', backgroundColor: '#10b981', showLine: false, pointRadius: 5, type: 'scatter' },
+                        { label: 'Sell', data: sellSignals, borderColor: '#ef4444', backgroundColor: '#ef4444', showLine: false, pointRadius: 5, type: 'scatter' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true } },
+                    scales: { y: { beginAtZero: false } }
+                }
+            });
+        }
+
+        // Alternar seções conforme menu lateral (adicionar Performance)
+        function showSection(section) {
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('modelTrainingSection').classList.add('hidden');
+            document.getElementById('backtestingSection').classList.add('hidden');
+            document.getElementById('settingsSection').classList.add('hidden');
+            document.getElementById('performanceSection').classList.add('hidden');
+            document.getElementById(section).classList.remove('hidden');
+            if (section === 'performanceSection' && lastBacktestMetrics) {
+                showPerformanceReport(lastBacktestMetrics);
+            }
+        }
+        const navLinks = document.querySelectorAll('.sidebar a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (this.textContent.includes('Dashboard')) showSection('dashboardSection');
+                if (this.textContent.includes('Model Training')) showSection('modelTrainingSection');
+                if (this.textContent.includes('Backtesting')) showSection('backtestingSection');
+                if (this.textContent.includes('Settings')) showSection('settingsSection');
+                if (this.textContent.includes('Performance')) showSection('performanceSection');
+            });
+        });
+        showSection('dashboardSection');
+    </script>
+</body>
+</html>
