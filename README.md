@@ -125,4 +125,4 @@ Acesse o app em [http://localhost:8501](http://localhost:8501).
 
 ## Dúvidas?
 
-Use a aba "Assistente IA" no app para tirar dúvidas ou peça ajuda aqui! 
+Use a aba "Assistente IA" no app para tirar dúvidas! 
